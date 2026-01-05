@@ -49,6 +49,12 @@ class Product(Base):
         back_populates="products",
         lazy="selectin"
     )
+    sales_orders: Mapped[list["SalesOrder"]] = relationship(
+        "SalesOrder",
+        back_populates="product",
+        lazy="selectin",
+        cascade="all, delete-orphan"
+    )
     
     @property
     def is_low_stock(self) -> bool:

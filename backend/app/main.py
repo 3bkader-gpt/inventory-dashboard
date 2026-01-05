@@ -11,12 +11,13 @@ from fastapi.responses import FileResponse
 from app.database import async_session_maker, init_db
 from app.routers import (
     auth_router,
+    analytics_router,
     categories_router,
     dashboard_router,
     products_router,
     users_router,
 )
-from app.services import seed_initial_data
+from app.services import seed_initial_data, seed_sales_history
 
 # Path to frontend build output
 FRONTEND_DIR = Path(__file__).parent.parent.parent / "frontend" / "dist"
@@ -40,6 +41,7 @@ async def lifespan(app: FastAPI):
     # Seed initial data
     async with async_session_maker() as session:
         await seed_initial_data(session)
+        await seed_sales_history(session)
     
     yield
     
@@ -73,6 +75,7 @@ app.include_router(users_router)
 app.include_router(categories_router)
 app.include_router(products_router)
 app.include_router(dashboard_router)
+app.include_router(analytics_router)
 
 
 @app.get("/api/health")

@@ -60,7 +60,7 @@ cd frontend && npm install && npm run build && cd ..
 python run_app.py
 ```
 
-Open **http://localhost:8000**
+Open **http://localhost:8000** (after starting the server locally)
 
 ### Option 2: Docker Compose (Production)
 
@@ -68,7 +68,7 @@ Open **http://localhost:8000**
 docker-compose up -d
 ```
 
-Services:
+Services (available after starting with `docker-compose up`):
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
 - **PostgreSQL**: localhost:5432
@@ -132,7 +132,9 @@ inventory-dashboard/
 | GET | `/api/categories` | Auth | List categories |
 | GET | `/api/users` | Admin | List users |
 
-Full API docs: **http://localhost:8000/docs**
+**API Documentation** (available when running locally):
+- Swagger UI: `http://localhost:8000/docs` (after starting the backend server)
+- ReDoc: `http://localhost:8000/redoc` (after starting the backend server)
 
 ---
 

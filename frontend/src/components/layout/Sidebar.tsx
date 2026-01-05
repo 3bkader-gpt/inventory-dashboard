@@ -38,15 +38,15 @@ export function Sidebar() {
             <div className={cn("flex items-center justify-between px-5 mb-6", mobile ? "h-16" : "h-20")}>
                 {(sidebarOpen || mobile) ? (
                     <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/40 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                             <Hexagon className="h-5 w-5 text-primary" />
                         </div>
-                        <span className="text-lg font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                        <span className="text-lg font-bold text-foreground">
                             ORBITAL
                         </span>
                     </div>
                 ) : (
-                    <div className="mx-auto h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/40 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                    <div className="mx-auto h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                         <Hexagon className="h-6 w-6 text-primary" />
                     </div>
                 )}
@@ -56,7 +56,7 @@ export function Sidebar() {
                         variant="ghost"
                         size="icon"
                         onClick={toggleSidebar}
-                        className="absolute right-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full"
+                        className="absolute right-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full"
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -73,8 +73,8 @@ export function Sidebar() {
                             cn(
                                 'relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 group overflow-hidden',
                                 isActive
-                                    ? 'text-white'
-                                    : 'text-muted-foreground hover:text-white hover:bg-white/5',
+                                    ? 'text-foreground font-medium'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
                                 (!sidebarOpen && !mobile) && 'justify-center px-2'
                             )
                         }
@@ -89,19 +89,19 @@ export function Sidebar() {
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-50" />
                                     </motion.div>
                                 )}
 
                                 <item.icon
                                     className={cn(
                                         "h-5 w-5 flex-shrink-0 z-10 transition-colors duration-200",
-                                        isActive ? "text-primary filter drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" : "group-hover:text-primary/80"
+                                        isActive ? "text-primary filter drop-shadow-[0_0_8px_rgba(6,182,212,0.3)]" : "group-hover:text-primary/80"
                                     )}
                                 />
 
                                 {(sidebarOpen || mobile) && (
-                                    <span className="z-10 font-medium tracking-wide text-sm">
+                                    <span className="z-10 tracking-wide text-sm">
                                         {item.label}
                                     </span>
                                 )}
@@ -118,7 +118,7 @@ export function Sidebar() {
             {/* User Profile Mini - Dock Style */}
             <div className="p-4 mt-auto">
                 <div className={cn(
-                    "rounded-xl bg-white/5 border border-white/5 p-3 flex items-center gap-3 transition-all hover:bg-white/10 hover:border-white/10",
+                    "rounded-xl bg-card/50 border border-border p-3 flex items-center gap-3 transition-all hover:bg-muted/50 hover:border-border/80",
                     (!sidebarOpen && !mobile) && "justify-center p-2"
                 )}>
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
@@ -126,7 +126,7 @@ export function Sidebar() {
                     </div>
                     {(sidebarOpen || mobile) && (
                         <div className="flex-1 overflow-hidden">
-                            <p className="truncate text-sm font-medium text-white">{user?.full_name}</p>
+                            <p className="truncate text-sm font-medium text-foreground">{user?.full_name}</p>
                             <p className="truncate text-xs text-muted-foreground capitalize">{user?.role}</p>
                         </div>
                     )}
@@ -139,7 +139,7 @@ export function Sidebar() {
                         variant="ghost"
                         size="icon"
                         onClick={toggleSidebar}
-                        className="h-8 w-8 rounded-full text-muted-foreground hover:bg-white/10 hover:text-white"
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     >
                         <Box className="h-4 w-4" />
                     </Button>
@@ -155,7 +155,7 @@ export function Sidebar() {
                 initial={false}
                 animate={{ width: sidebarOpen ? 256 : 80 }}
                 className={cn(
-                    'hidden lg:flex fixed left-4 top-4 bottom-4 z-40 rounded-2xl glass-panel border border-white/10 flex-col overflow-hidden transition-all duration-300',
+                    'hidden lg:flex fixed left-4 top-4 bottom-4 z-40 rounded-2xl glass-panel border border-border flex-col overflow-hidden transition-all duration-300',
                 )}
             >
                 <SidebarContent />

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
     Package,
     FolderTree,
@@ -21,6 +20,7 @@ import {
     Legend,
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,7 +28,7 @@ import { dashboardApi } from '@/api/dashboard';
 import { useAuthStore } from '@/stores/authStore';
 import { formatCurrency } from '@/lib/utils';
 import { AIReorderWidget } from '@/components/dashboard/AIReorderWidget';
-import type { CategoryValue, DashboardStats, LowStockItem } from '@/types';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 // Neon Palette for Charts
 const COLORS = ['#06b6d4', '#8b5cf6', '#f472b6', '#10b981', '#f59e0b', '#ef4444'];
@@ -49,37 +49,28 @@ const itemVariants = {
     show: { y: 0, opacity: 1 }
 };
 
-// Animated Counter removed (handled by PremiumCard)
-
 export function DashboardPage() {
     const { user } = useAuthStore();
     const isAdmin = user?.role === 'admin';
+    const themeColors = useThemeColors();
 
-    const [stats, setStats] = useState<DashboardStats | null>(null);
-    const [lowStock, setLowStock] = useState<LowStockItem[]>([]);
-    const [categoryValues, setCategoryValues] = useState<CategoryValue[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // TanStack Query for data fetching with caching
+    const { data: stats, isLoading: statsLoading } = useQuery({
+        queryKey: ['dashboard', 'stats'],
+        queryFn: () => dashboardApi.getStats(),
+    });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [statsData, lowStockData, categoryData] = await Promise.all([
-                    dashboardApi.getStats(),
-                    dashboardApi.getLowStock(),
-                    dashboardApi.getCategoryValues(),
-                ]);
-                setStats(statsData);
-                setLowStock(lowStockData);
-                setCategoryValues(categoryData);
-            } catch (error) {
-                console.error('Failed to fetch dashboard data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const { data: lowStock = [], isLoading: lowStockLoading } = useQuery({
+        queryKey: ['dashboard', 'lowStock'],
+        queryFn: () => dashboardApi.getLowStock(),
+    });
 
-        fetchData();
-    }, []);
+    const { data: categoryValues = [], isLoading: categoryLoading } = useQuery({
+        queryKey: ['dashboard', 'categoryValues'],
+        queryFn: () => dashboardApi.getCategoryValues(),
+    });
+
+    const isLoading = statsLoading || lowStockLoading || categoryLoading;
 
     if (isLoading) {
         return (
@@ -132,7 +123,7 @@ export function DashboardPage() {
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                    <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
                         Command Center
                     </h1>
                     <p className="text-muted-foreground mt-2">
@@ -200,7 +191,7 @@ export function DashboardPage() {
 
                 {/* Low Stock Chart */}
                 <motion.div variants={itemVariants} className="h-full">
-                    <Card className="h-full border-white/5 bg-black/40">
+                    <Card className="h-full glass-panel">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
                                 <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -225,26 +216,33 @@ export function DashboardPage() {
                                                     <stop offset="100%" stopColor="#f87171" stopOpacity={1} />
                                                 </linearGradient>
                                             </defs>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={false} />
-                                            <XAxis type="number" stroke="#ffffff50" fontSize={12} />
+                                            <CartesianGrid strokeDasharray="3 3" stroke={themeColors.gridStroke} horizontal={false} />
+                                            <XAxis
+                                                type="number"
+                                                stroke={themeColors.textColor}
+                                                fontSize={12}
+                                                tick={{ fill: themeColors.textColor, fontWeight: 500 }}
+                                            />
                                             <YAxis
                                                 dataKey="name"
                                                 type="category"
-                                                width={100}
-                                                stroke="#ffffff80"
+                                                width={120}
+                                                stroke={themeColors.textColor}
                                                 fontSize={12}
                                                 tickLine={false}
                                                 axisLine={false}
+                                                tick={{ fill: themeColors.textColor, fontWeight: 500 }}
                                             />
                                             <Tooltip
-                                                cursor={{ fill: '#ffffff05' }}
+                                                cursor={{ fill: themeColors.gridStroke }}
                                                 contentStyle={{
-                                                    backgroundColor: 'rgba(0,0,0,0.8)',
-                                                    border: '1px solid rgba(255,255,255,0.1)',
-                                                    backdropFilter: 'blur(10px)',
-                                                    borderRadius: '12px',
-                                                    color: '#fff'
+                                                    backgroundColor: themeColors.backgroundColor,
+                                                    borderColor: themeColors.borderColor,
+                                                    borderRadius: '0.75rem',
+                                                    color: themeColors.textColor,
+                                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                                                 }}
+                                                itemStyle={{ color: themeColors.textColor }}
                                             />
                                             <Bar dataKey="quantity" fill="url(#barGradient)" radius={[0, 4, 4, 0]} barSize={20} />
                                         </BarChart>
@@ -257,7 +255,7 @@ export function DashboardPage() {
 
                 {/* Category Distribution */}
                 <motion.div variants={itemVariants} className="h-full">
-                    <Card className="h-full border-white/5 bg-black/40">
+                    <Card className="h-full glass-panel">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
                                 <Boxes className="h-5 w-5 text-primary" />
@@ -294,13 +292,13 @@ export function DashboardPage() {
                                             </Pie>
                                             <Tooltip
                                                 contentStyle={{
-                                                    backgroundColor: 'rgba(0,0,0,0.8)',
-                                                    border: '1px solid rgba(255,255,255,0.1)',
-                                                    backdropFilter: 'blur(10px)',
-                                                    borderRadius: '12px',
-                                                    color: '#fff'
+                                                    backgroundColor: themeColors.backgroundColor,
+                                                    borderColor: themeColors.borderColor,
+                                                    borderRadius: '0.75rem',
+                                                    color: themeColors.textColor,
+                                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                                                 }}
-                                                itemStyle={{ color: '#fff' }}
+                                                itemStyle={{ color: themeColors.textColor }}
                                                 formatter={(value: number) =>
                                                     isAdmin ? formatCurrency(value) : value.toLocaleString()
                                                 }
@@ -309,7 +307,7 @@ export function DashboardPage() {
                                                 verticalAlign="bottom"
                                                 height={36}
                                                 iconType="circle"
-                                                formatter={(value) => <span style={{ color: '#ffffff90' }}>{value}</span>}
+                                                formatter={(value) => <span style={{ color: themeColors.textColor }}>{value}</span>}
                                             />
                                         </PieChart>
                                     </ResponsiveContainer>
@@ -325,8 +323,8 @@ export function DashboardPage() {
                 <Card className="glass-panel border-primary/10 bg-primary/5">
                     <CardContent className="flex items-center justify-between p-6">
                         <div>
-                            <h3 className="text-lg font-medium text-white">System Status</h3>
-                            <p className="text-sm text-primary/60">All inventory systems operational. Database synced.</p>
+                            <h3 className="text-lg font-medium text-foreground">System Status</h3>
+                            <p className="text-sm text-muted-foreground">All inventory systems operational. Database synced.</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />

@@ -10,6 +10,7 @@ interface ProductState {
     isLoading: boolean;
     error: string | null;
     selectedProduct: Product | null;
+    currentRequest: AbortController | null;
 
     // Actions
     fetchProducts: () => Promise<void>;
@@ -36,20 +37,31 @@ export const useProductStore = create<ProductState>((set, get) => ({
     isLoading: false,
     error: null,
     selectedProduct: null,
+    currentRequest: null,
 
     fetchProducts: async () => {
-        set({ isLoading: true, error: null });
+        // Cancel previous request if exists
+        if (get().currentRequest) {
+            get().currentRequest?.abort();
+        }
+
+        const controller = new AbortController();
+        set({ isLoading: true, error: null, currentRequest: controller });
+
         try {
+            // Note: Assuming API supports signal, otherwise this is just client-side tracking
             const response: ProductListResponse = await productsApi.list(get().filters);
             set({
                 products: response.items,
                 total: response.total,
                 totalPages: response.total_pages,
                 isLoading: false,
+                currentRequest: null,
             });
         } catch (error: unknown) {
+            if (error instanceof Error && error.name === 'AbortError') return;
             const message = error instanceof Error ? error.message : 'Failed to fetch products';
-            set({ error: message, isLoading: false });
+            set({ error: message, isLoading: false, currentRequest: null });
         }
     },
 

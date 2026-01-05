@@ -4,44 +4,78 @@
 
 @layer base {
   :root {
-    --background: 234 36% 6%;
-    /* #0B0C15 */
-    --foreground: 210 40% 98%;
+    /* 🎨 PREMIUM LIGHT MODE - Clean Minimalism + Depth */
 
-    --card: 234 30% 10%;
-    /* Slightly lighter than bg */
-    --card-foreground: 210 40% 98%;
+    /* 🔵 Backgrounds - Warm blue-gray gradient */
+    --background: 210 40% 98%;
+    /* Super light blue-gray */
+    --bg-secondary: 210 50% 96%;
+    /* Light blue-gray */
+    --bg-tertiary: 210 30% 92%;
+    /* Warm gray (for hover) */
 
-    --popover: 234 36% 6%;
-    --popover-foreground: 210 40% 98%;
+    /* ⚪ Surfaces - Elevated Elements */
+    --card: 0 0% 100%;
+    /* Pure white */
+    --card-foreground: 210 40% 12%;
+    /* Dark blue-gray text */
 
-    --primary: 186 100% 50%;
-    /* Electric Cyan #00E5FF */
-    --primary-foreground: 234 36% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 12%;
 
-    --secondary: 265 89% 66%;
-    /* Violet #7C3AED */
-    --secondary-foreground: 210 40% 98%;
+    /* 🔤 Text Colors - Multiple Levels */
+    --foreground: 210 40% 12%;
+    /* Primary text */
+    --text-secondary: 210 20% 35%;
+    /* Secondary text */
+    --text-tertiary: 210 15% 50%;
+    /* Hints, labels */
+    --muted-foreground: 210 15% 50%;
+    /* Muted text */
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    /* 🎯 Accents - Vibrant Blue (not violet) */
+    --primary: 210 100% 50%;
+    /* Vibrant blue */
+    --primary-foreground: 0 0% 100%;
+    /* White text on primary */
 
-    --accent: 265 89% 66%;
-    --accent-foreground: 210 40% 98%;
+    --secondary: 210 50% 96%;
+    --secondary-foreground: 210 40% 12%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --muted: 210 40% 96%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 186 100% 50%;
+    --accent: 210 100% 95%;
+    /* Light accent background */
+    --accent-foreground: 210 100% 40%;
+    /* Accent text */
+
+    /* 🔴 Status Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* 🌫️ Borders & Dividers - Subtle */
+    --border: 210 30% 88%;
+    /* Subtle border */
+    --input: 210 30% 88%;
+    --ring: 210 100% 50%;
+    /* Focus ring */
 
     --radius: 0.75rem;
+
+    /* ✨ Shadows - Depth (defined as custom properties) */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+    /* Spotlight: Blue for light mode */
+    --spotlight: 210 100% 50%;
   }
 
   .dark {
     --background: 234 36% 6%;
-    --foreground: 210 40% 98%;
+    --foreground: 214.3 31.8% 91.4%;
+    /* Slate-200 for reduced eye strain */
 
     --card: 234 30% 10%;
     --card-foreground: 210 40% 98%;
@@ -67,6 +101,9 @@
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 186 100% 50%;
+
+    /* Spotlight Color: Violet for Deep Space */
+    --spotlight: 265 89% 66%;
   }
 }
 
@@ -77,19 +114,24 @@
 
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
-    background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0a 100%);
     min-height: 100vh;
     font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Deep Space Gradient only in dark mode */
+  .dark body {
+    background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0a 100%);
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-xl;
+    @apply bg-card dark:bg-black/40 backdrop-blur-xl border border-border dark:border-white/10 shadow-sm dark:shadow-xl transition-all duration-300;
   }
 
   .glass-panel-hover {
-    @apply hover:bg-black/50 hover:border-primary/30 transition-all duration-300;
+    @apply hover:bg-white/80 dark:hover:bg-black/50 hover:border-primary/50 dark:hover:border-primary/30 transition-all duration-300 hover:shadow-md dark:hover:shadow-2xl;
   }
 
   .neon-text {
@@ -121,4 +163,19 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-muted-foreground/50;
+}
+
+/* ============================================
+   Recharts SVG Text - OUTSIDE @layer for max specificity
+   ============================================ */
+.recharts-text tspan,
+.recharts-cartesian-axis-tick-value tspan,
+.recharts-legend-item-text {
+  fill: #0f172a !important;
+}
+
+html.dark .recharts-text tspan,
+html.dark .recharts-cartesian-axis-tick-value tspan,
+html.dark .recharts-legend-item-text {
+  fill: #f1f5f9 !important;
 }

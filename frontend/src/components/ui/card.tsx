@@ -12,7 +12,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            whileHover={{ scale: 1.01, boxShadow: "0 0 20px rgba(6, 182, 212, 0.15)" }}
+            whileHover={{ scale: 1.01 }}
             className={cn(
                 "glass-panel rounded-xl text-card-foreground shadow-sm",
                 className
@@ -42,7 +42,7 @@ const CardTitle = React.forwardRef<
     <h3
         ref={ref}
         className={cn(
-            "text-2xl font-semibold leading-none tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent",
+            "text-2xl font-semibold leading-none tracking-tight text-foreground",
             className
         )}
         {...props}

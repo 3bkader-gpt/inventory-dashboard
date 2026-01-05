@@ -30,10 +30,15 @@ export const authApi = {
     /**
      * Refresh access token.
      */
-    async refresh(refreshToken: string): Promise<TokenResponse> {
-        const response = await apiClient.post<TokenResponse>('/auth/refresh', null, {
-            params: { refresh_token: refreshToken },
-        });
+    async refresh(): Promise<TokenResponse> {
+        const response = await apiClient.post<TokenResponse>('/auth/refresh');
         return response.data;
+    },
+
+    /**
+     * Logout user.
+     */
+    async logout(): Promise<void> {
+        await apiClient.post('/auth/logout');
     },
 };

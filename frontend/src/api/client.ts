@@ -2,19 +2,21 @@ import axios from 'axios';
 
 /**
  * Axios instance configured for the API.
- * Automatically attaches JWT token from localStorage.
+ * Automatically attaches JWT token from sessionStorage.
+ * Refresh token is handled via HttpOnly cookies.
  */
 const apiClient = axios.create({
     baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // Send cookies with requests
 });
 
 // Request interceptor: Add auth token
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -33,25 +35,19 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            const refreshToken = localStorage.getItem('refresh_token');
-            if (refreshToken) {
-                try {
-                    const response = await axios.post('/api/auth/refresh', null, {
-                        params: { refresh_token: refreshToken },
-                    });
+            try {
+                // Refresh token is sent automatically via HttpOnly cookie
+                const response = await apiClient.post('/auth/refresh');
 
-                    const { access_token, refresh_token: newRefresh } = response.data;
-                    localStorage.setItem('access_token', access_token);
-                    localStorage.setItem('refresh_token', newRefresh);
+                const { access_token } = response.data;
+                sessionStorage.setItem('access_token', access_token);
 
-                    originalRequest.headers.Authorization = `Bearer ${access_token}`;
-                    return apiClient(originalRequest);
-                } catch {
-                    // Refresh failed, clear tokens
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('refresh_token');
-                    window.location.href = '/login';
-                }
+                originalRequest.headers.Authorization = `Bearer ${access_token}`;
+                return apiClient(originalRequest);
+            } catch {
+                // Refresh failed, clear tokens
+                sessionStorage.removeItem('access_token');
+                window.location.href = '/login';
             }
         }
 

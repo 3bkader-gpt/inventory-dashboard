@@ -61,7 +61,7 @@ export function PremiumCard({ title, value, trend, icon: Icon, className, chartD
     return (
         <div
             className={cn(
-                "group relative rounded-xl border border-white/10 bg-zinc-900/50 px-6 py-5 overflow-hidden backdrop-blur-xl transition-colors hover:border-white/20",
+                "group relative rounded-xl glass-panel px-6 py-5 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/20",
                 className
             )}
             onMouseMove={handleMouseMove}
@@ -73,35 +73,33 @@ export function PremiumCard({ title, value, trend, icon: Icon, className, chartD
                     background: useMotionTemplate`
             radial-gradient(
               650px circle at ${mouseX}px ${mouseY}px,
-              rgba(124, 58, 237, 0.15),
+              hsl(var(--spotlight) / 0.15),
               transparent 80%
             )
           `,
                 }}
             />
 
-            {/* 🌫️ Noise Texture Overlay (Optional, if global noise isn't enough) */}
-
             {/* Content */}
             <div className="relative flex justify-between items-start mb-4 z-10">
                 <div>
-                    <p className="text-sm font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                    <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                         {title}
                     </p>
                     <div className="mt-2 flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold tracking-tight text-white font-[Geist]">{displayValue}</h3>
+                        <h3 className="text-3xl font-bold tracking-tight text-foreground font-[Geist]">{displayValue}</h3>
                         {trend !== undefined && (
                             <span className={cn(
                                 "text-xs font-medium px-1.5 py-0.5 rounded-full",
-                                trend > 0 ? 'text-emerald-400 bg-emerald-400/10' : 'text-rose-400 bg-rose-400/10'
+                                trend > 0 ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
                             )}>
                                 {trend > 0 ? '+' : ''}{trend}%
                             </span>
                         )}
                     </div>
                 </div>
-                <div className="p-2 rounded-lg bg-white/5 border border-white/5 ring-1 ring-white/10 group-hover:bg-white/10 transition-colors">
-                    <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white" />
+                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary group-hover:bg-primary/20 transition-colors">
+                    <Icon className="w-5 h-5" />
                 </div>
             </div>
 
@@ -111,7 +109,7 @@ export function PremiumCard({ title, value, trend, icon: Icon, className, chartD
                     <AreaChart data={chartData}>
                         <defs>
                             <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.5} />
+                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
                                 <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
                             </linearGradient>
                         </defs>

@@ -26,9 +26,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         try {
             const response = await authApi.login(email, password);
 
-            // Store tokens
-            localStorage.setItem('access_token', response.access_token);
-            localStorage.setItem('refresh_token', response.refresh_token);
+            // Store access token in sessionStorage (more secure than localStorage)
+            // Refresh token is stored in HttpOnly cookie by backend
+            sessionStorage.setItem('access_token', response.access_token);
 
             set({
                 user: response.user,
@@ -46,9 +46,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
     },
 
-    logout: () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+    logout: async () => {
+        try {
+            await authApi.logout();
+        } catch (error) {
+            console.error('Logout failed', error);
+        }
+
+        sessionStorage.removeItem('access_token');
         set({
             user: null,
             isAuthenticated: false,
@@ -58,7 +63,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     checkAuth: async () => {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         if (!token) {
             set({ isLoading: false, isAuthenticated: false });
             return;
@@ -73,8 +78,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             });
         } catch {
             // Token invalid, clear it
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
+            sessionStorage.removeItem('access_token');
             set({
                 user: null,
                 isAuthenticated: false,

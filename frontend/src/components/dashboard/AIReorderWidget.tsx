@@ -40,32 +40,32 @@ export function AIReorderWidget() {
     const getUrgencyColor = (urgency: Forecast['urgency']) => {
         switch (urgency) {
             case 'critical':
-                return 'text-red-400 bg-red-500/10 border-red-500/30';
+                return 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20';
             case 'warning':
-                return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
+                return 'text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
             default:
-                return 'text-green-400 bg-green-500/10 border-green-500/30';
+                return 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
         }
     };
 
     const getUrgencyIcon = (urgency: Forecast['urgency']) => {
         switch (urgency) {
             case 'critical':
-                return <AlertTriangle className="h-4 w-4 text-red-400" />;
+                return <AlertTriangle className="h-4 w-4 text-red-500 dark:text-red-400" />;
             case 'warning':
-                return <TrendingDown className="h-4 w-4 text-yellow-400" />;
+                return <TrendingDown className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />;
             default:
-                return <Package className="h-4 w-4 text-green-400" />;
+                return <Package className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />;
         }
     };
 
     if (loading) {
         return (
-            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-full animate-pulse">
-                <div className="h-6 bg-white/10 rounded w-1/2 mb-4" />
+            <div className="glass-panel rounded-2xl p-6 h-full animate-pulse">
+                <div className="h-6 bg-muted rounded w-1/2 mb-4" />
                 <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-16 bg-white/5 rounded-lg" />
+                        <div key={i} className="h-16 bg-muted/50 rounded-lg" />
                     ))}
                 </div>
             </div>
@@ -78,15 +78,15 @@ export function AIReorderWidget() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-panel rounded-2xl border border-white/10 p-6 h-full"
+            className="glass-panel rounded-2xl p-6 h-full"
         >
             {/* Header */}
             <div className="flex items-center gap-3 mb-5">
-                <div className="h-10 w-10 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                    <Brain className="h-5 w-5 text-purple-400" />
+                <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                    <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                    <h3 className="font-semibold text-white">AI Reorder Alerts</h3>
+                    <h3 className="font-semibold text-foreground">AI Reorder Alerts</h3>
                     <p className="text-xs text-muted-foreground">
                         {criticalItems.length > 0
                             ? `${criticalItems.length} items need attention`
@@ -115,10 +115,10 @@ export function AIReorderWidget() {
                             <div className="flex items-center gap-3 min-w-0">
                                 {getUrgencyIcon(forecast.urgency)}
                                 <div className="min-w-0">
-                                    <p className="font-medium text-white truncate text-sm">
+                                    <p className="font-medium text-foreground truncate text-sm">
                                         {forecast.name}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-muted-foreground/80 font-medium">
                                         SKU: {forecast.sku}
                                     </p>
                                 </div>
@@ -126,14 +126,14 @@ export function AIReorderWidget() {
                             <div className="text-right flex-shrink-0">
                                 {forecast.days_until_stockout !== null ? (
                                     <>
-                                        <p className="font-bold text-lg">
+                                        <p className="font-bold text-lg text-foreground">
                                             {forecast.days_until_stockout.toFixed(0)}
                                         </p>
                                         <p className="text-xs text-muted-foreground">days left</p>
                                     </>
                                 ) : (
                                     <>
-                                        <p className="font-bold text-lg text-green-400">∞</p>
+                                        <p className="font-bold text-lg text-emerald-600 dark:text-green-400">∞</p>
                                         <p className="text-xs text-muted-foreground">no velocity</p>
                                     </>
                                 )}
@@ -145,7 +145,7 @@ export function AIReorderWidget() {
 
             {/* Suggested Action */}
             {criticalItems.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="mt-4 pt-4 border-t border-border">
                     <p className="text-xs text-muted-foreground">
                         💡 <strong>Suggested:</strong> Reorder{' '}
                         {criticalItems.reduce((sum, f) => sum + f.suggested_reorder, 0)} units

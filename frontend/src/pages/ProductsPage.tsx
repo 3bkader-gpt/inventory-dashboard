@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Search, Download, Upload, Trash2, Edit, Package } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,13 +20,22 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { useProductStore } from '@/stores/productStore';
 import { useAuthStore } from '@/stores/authStore';
 import { productsApi } from '@/api/products';
 import { categoriesApi } from '@/api/categories';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
-import type { Category, Product, ProductCreateInput } from '@/types';
+import type { Category, Product } from '@/types';
+import { useDebounce } from '@/hooks/useDebounce';
+import { productSchema, type ProductFormValues } from '@/schemas/productSchema';
 
 export function ProductsPage() {
     const { user } = useAuthStore();
@@ -45,17 +56,38 @@ export function ProductsPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-    const [formData, setFormData] = useState<ProductCreateInput>({
-        sku: '',
-        name: '',
-        description: '',
-        quantity: 0,
-        unit_price: 0,
-        low_stock_threshold: 10,
-        category_id: null,
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [quantityEdit, setQuantityEdit] = useState<{ id: number; value: number } | null>(null);
+
+    // Debounce search state
+    const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(searchTerm, 500);
+
+    const form = useForm<ProductFormValues>({
+        resolver: zodResolver(productSchema) as any,
+        defaultValues: {
+            sku: '',
+            name: '',
+            description: '',
+            quantity: 0,
+            unit_price: 0,
+            low_stock_threshold: 10,
+            category_id: undefined,
+        },
+    });
+
+    // Update filters when debounced search term changes
+    useEffect(() => {
+        if (debouncedSearch !== filters.search) {
+            setFilters({ search: debouncedSearch });
+        }
+    }, [debouncedSearch]);
+
+    // Sync local state if filters change externally
+    useEffect(() => {
+        if (filters.search !== undefined && filters.search !== searchTerm) {
+            setSearchTerm(filters.search);
+        }
+    }, [filters.search]);
 
     useEffect(() => {
         fetchProducts();
@@ -74,46 +106,48 @@ export function ProductsPage() {
     const handleOpenForm = (product?: Product) => {
         if (product) {
             setEditingProduct(product);
-            setFormData({
+            form.reset({
                 sku: product.sku,
                 name: product.name,
                 description: product.description || '',
                 quantity: product.quantity,
                 unit_price: product.unit_price,
                 low_stock_threshold: product.low_stock_threshold,
-                category_id: product.category_id,
+                category_id: product.category_id || undefined,
             });
         } else {
             setEditingProduct(null);
-            setFormData({
+            form.reset({
                 sku: '',
                 name: '',
                 description: '',
                 quantity: 0,
                 unit_price: 0,
                 low_stock_threshold: 10,
-                category_id: null,
+                category_id: undefined,
             });
         }
         setIsFormOpen(true);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
+    const onSubmit = async (data: ProductFormValues) => {
         try {
+            // Transform undefined category_id to null for API, and ensure description is undefined if null/empty
+            const apiData = {
+                ...data,
+                category_id: data.category_id ?? null,
+                description: data.description || undefined,
+            };
+
             if (editingProduct) {
-                await productsApi.update(editingProduct.id, formData);
+                await productsApi.update(editingProduct.id, apiData);
             } else {
-                await productsApi.create(formData);
+                await productsApi.create(apiData);
             }
             setIsFormOpen(false);
             fetchProducts();
         } catch (error) {
             console.error('Failed to save product:', error);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
@@ -200,8 +234,8 @@ export function ProductsPage() {
                                 <Input
                                     placeholder="Search by name or SKU..."
                                     className="pl-10"
-                                    value={filters.search}
-                                    onChange={(e) => setFilters({ search: e.target.value })}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -269,14 +303,14 @@ export function ProductsPage() {
                                     {products.map((product) => (
                                         <tr
                                             key={product.id}
-                                            className="group bg-black/20 hover:bg-black/40 transition-all duration-300 border border-white/5 hover:border-primary/20 shadow-sm hover:shadow-lg hover:shadow-primary/5 rounded-xl"
+                                            className="group bg-card hover:bg-accent/50 transition-all duration-300 border border-border hover:border-primary/20 shadow-sm hover:shadow-md rounded-xl"
                                         >
-                                            <td className="py-4 px-4 font-mono text-sm rounded-l-xl border-y border-l border-white/5 group-hover:border-primary/20 transition-colors">
+                                            <td className="py-4 px-4 font-mono text-sm rounded-l-xl border-y border-l border-transparent group-hover:border-primary/10 transition-colors text-foreground">
                                                 {product.sku}
                                             </td>
-                                            <td className="py-4 px-4 border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                            <td className="py-4 px-4 border-y border-transparent group-hover:border-primary/10 transition-colors">
                                                 <div>
-                                                    <div className="font-medium text-white group-hover:text-primary transition-colors">{product.name}</div>
+                                                    <div className="font-medium text-foreground group-hover:text-primary transition-colors">{product.name}</div>
                                                     {product.description && (
                                                         <div className="text-sm text-muted-foreground line-clamp-1">
                                                             {product.description}
@@ -284,22 +318,22 @@ export function ProductsPage() {
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-4 border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                            <td className="py-4 px-4 border-y border-transparent group-hover:border-primary/10 transition-colors">
                                                 {product.category?.name ? (
-                                                    <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-muted-foreground border border-white/10">
+                                                    <span className="px-2 py-1 rounded-md bg-muted text-xs text-muted-foreground border border-border">
                                                         {product.category.name}
                                                     </span>
                                                 ) : (
                                                     <span className="text-muted-foreground">—</span>
                                                 )}
                                             </td>
-                                            <td className="py-4 px-4 text-right border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                            <td className="py-4 px-4 text-right border-y border-transparent group-hover:border-primary/10 transition-colors">
                                                 {quantityEdit?.id === product.id ? (
                                                     <div className="flex items-center justify-end gap-2">
                                                         <Input
                                                             type="number"
                                                             min={0}
-                                                            className="w-20 text-right h-8 bg-black/50"
+                                                            className="w-20 text-right h-8"
                                                             value={quantityEdit.value}
                                                             onChange={(e) =>
                                                                 setQuantityEdit({
@@ -322,8 +356,8 @@ export function ProductsPage() {
                                                         className={cn(
                                                             'rounded-full px-3 py-1 text-xs font-semibold transition-all duration-300 border',
                                                             product.is_low_stock
-                                                                ? 'bg-red-500/10 text-red-500 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-                                                                : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)] hover:bg-emerald-500/20'
+                                                                ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                                                                : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                                                         )}
                                                         onClick={() =>
                                                             setQuantityEdit({ id: product.id, value: product.quantity })
@@ -334,26 +368,26 @@ export function ProductsPage() {
                                                 )}
                                             </td>
                                             {isAdmin && (
-                                                <td className="py-4 px-4 text-right border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                                <td className="py-4 px-4 text-right border-y border-transparent group-hover:border-primary/10 transition-colors text-foreground">
                                                     {formatCurrency(product.unit_price)}
                                                 </td>
                                             )}
                                             {isAdmin && (
-                                                <td className="py-4 px-4 text-right font-medium text-white border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                                <td className="py-4 px-4 text-right font-medium text-foreground border-y border-transparent group-hover:border-primary/10 transition-colors">
                                                     {formatCurrency(product.total_value)}
                                                 </td>
                                             )}
-                                            <td className="py-4 px-4 text-sm text-muted-foreground border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                            <td className="py-4 px-4 text-sm text-muted-foreground border-y border-transparent group-hover:border-primary/10 transition-colors">
                                                 {formatDate(product.updated_at)}
                                             </td>
-                                            <td className="py-4 px-4 text-right rounded-r-xl border-y border-r border-white/5 group-hover:border-primary/20 transition-colors">
+                                            <td className="py-4 px-4 text-right rounded-r-xl border-y border-r border-transparent group-hover:border-primary/10 transition-colors">
                                                 <div className="flex justify-end gap-1">
                                                     {isAdmin && (
                                                         <>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="hover:bg-primary/20 hover:text-primary"
+                                                                className="hover:bg-primary/10 hover:text-primary"
                                                                 onClick={() => handleOpenForm(product)}
                                                             >
                                                                 <Edit className="h-4 w-4" />
@@ -361,7 +395,7 @@ export function ProductsPage() {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="hover:bg-destructive/20 hover:text-destructive"
+                                                                className="hover:bg-destructive/10 hover:text-destructive"
                                                                 onClick={() => handleDelete(product.id)}
                                                             >
                                                                 <Trash2 className="h-4 w-4" />
@@ -417,118 +451,137 @@ export function ProductsPage() {
                                 : 'Fill in the details to create a new product.'}
                         </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="sku">SKU</Label>
-                                <Input
-                                    id="sku"
-                                    value={formData.sku}
-                                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                                    required
+
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="sku"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>SKU</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="category_id"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Category</FormLabel>
+                                            <Select
+                                                onValueChange={(value) => field.onChange(value === 'none' ? undefined : Number(value))}
+                                                defaultValue={field.value?.toString() || 'none'}
+                                                value={field.value?.toString() || 'none'}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none">None</SelectItem>
+                                                    {categories.map((cat) => (
+                                                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                                                            {cat.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
-                                <Select
-                                    value={formData.category_id?.toString() || 'none'}
-                                    onValueChange={(v) =>
-                                        setFormData({
-                                            ...formData,
-                                            category_id: v === 'none' ? null : Number(v),
-                                        })
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">None</SelectItem>
-                                        {categories.map((cat) => (
-                                            <SelectItem key={cat.id} value={cat.id.toString()}>
-                                                {cat.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                                id="name"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                required
+
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Input
-                                id="description"
-                                value={formData.description}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, description: e.target.value })
-                                }
+
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="quantity">Quantity</Label>
-                                <Input
-                                    id="quantity"
-                                    type="number"
-                                    min={0}
-                                    value={formData.quantity}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })
-                                    }
-                                    required
+
+                            <div className="grid grid-cols-3 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="quantity"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Quantity</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="unit_price"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Unit Price</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" step="0.01" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="low_stock_threshold"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Low Stock</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="price">Unit Price</Label>
-                                <Input
-                                    id="price"
-                                    type="number"
-                                    min={0}
-                                    step="0.01"
-                                    value={formData.unit_price}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            unit_price: parseFloat(e.target.value) || 0,
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="threshold">Low Stock</Label>
-                                <Input
-                                    id="threshold"
-                                    type="number"
-                                    min={0}
-                                    value={formData.low_stock_threshold}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            low_stock_threshold: parseInt(e.target.value) || 0,
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? 'Saving...' : 'Save'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
+
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={form.formState.isSubmitting}>
+                                    {form.formState.isSubmitting ? 'Saving...' : 'Save'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
                 </DialogContent>
             </Dialog>
         </div>

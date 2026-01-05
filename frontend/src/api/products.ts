@@ -95,4 +95,18 @@ export const productsApi = {
         toast.success(`Import complete: ${response.data.created} created, ${response.data.updated} updated`);
         return response.data;
     },
+
+    /**
+     * AI-powered natural language search.
+     * Example queries: "show me cheap electronics", "low stock items", "products under $50"
+     */
+    async smartSearch(query: string): Promise<{
+        results: Product[];
+        total: number;
+        parsed_query: Record<string, unknown>;
+        parse_method: string;
+    }> {
+        const response = await apiClient.post('/search/smart', { query });
+        return response.data;
+    },
 };

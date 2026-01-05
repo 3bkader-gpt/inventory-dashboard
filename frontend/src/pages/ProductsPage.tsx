@@ -58,6 +58,12 @@ export function ProductsPage() {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [quantityEdit, setQuantityEdit] = useState<{ id: number; value: number } | null>(null);
 
+    // AI Search state
+    const [aiSearchMode, setAiSearchMode] = useState(false);
+    const [aiSearchResults, setAiSearchResults] = useState<Product[] | null>(null);
+    const [aiParseMethod, setAiParseMethod] = useState<string | null>(null);
+    const [isAiSearching, setIsAiSearching] = useState(false);
+
     // Debounce search state
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const debouncedSearch = useDebounce(searchTerm, 500);
@@ -101,6 +107,31 @@ export function ProductsPage() {
         } catch (error) {
             console.error('Failed to load categories:', error);
         }
+    };
+
+    // AI-powered natural language search
+    const handleAiSearch = async () => {
+        if (!searchTerm.trim()) return;
+
+        setIsAiSearching(true);
+        try {
+            const result = await productsApi.smartSearch(searchTerm);
+            setAiSearchResults(result.results);
+            setAiParseMethod(result.parse_method);
+        } catch (error) {
+            console.error('AI Search failed:', error);
+            setAiSearchResults([]);
+            setAiParseMethod('error');
+        } finally {
+            setIsAiSearching(false);
+        }
+    };
+
+    // Clear AI search results
+    const clearAiSearch = () => {
+        setAiSearchResults(null);
+        setAiParseMethod(null);
+        setSearchTerm('');
     };
 
     const handleOpenForm = (product?: Product) => {
@@ -224,20 +255,68 @@ export function ProductsPage() {
                 </div>
             </div>
 
-            {/* Filters */}
+            {/* Filters + AI Search */}
             <Card>
                 <CardContent className="pt-6">
                     <div className="flex flex-wrap gap-4">
+                        {/* AI Search Bar */}
                         <div className="flex-1">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                <Input
-                                    placeholder="Search by name or SKU..."
-                                    className="pl-10"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
+                            <div className="relative flex gap-2">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        placeholder={aiSearchMode ? 'Try: "show me cheap electronics" or "low stock items"' : 'Search by name or SKU...'}
+                                        className={cn("pl-10", aiSearchMode && "border-primary/50 bg-primary/5")}
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            if (aiSearchResults) clearAiSearch();
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && aiSearchMode) {
+                                                handleAiSearch();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <Button
+                                    variant={aiSearchMode ? 'default' : 'outline'}
+                                    onClick={() => {
+                                        setAiSearchMode(!aiSearchMode);
+                                        if (aiSearchResults) clearAiSearch();
+                                    }}
+                                    className="gap-2"
+                                >
+                                    ✨ AI
+                                </Button>
+                                {aiSearchMode && (
+                                    <Button
+                                        onClick={handleAiSearch}
+                                        disabled={isAiSearching || !searchTerm.trim()}
+                                    >
+                                        {isAiSearching ? 'Searching...' : 'Search'}
+                                    </Button>
+                                )}
                             </div>
+                            {/* AI Search Results Indicator */}
+                            {aiSearchResults && (
+                                <div className="mt-2 flex items-center gap-2 text-sm">
+                                    <span className={cn(
+                                        "px-2 py-0.5 rounded-full text-xs font-medium",
+                                        aiParseMethod === 'ai' ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+                                            aiParseMethod === 'regex' ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
+                                                "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                    )}>
+                                        {aiParseMethod === 'ai' ? '🤖 AI Parsed' : aiParseMethod === 'regex' ? '📝 Regex Fallback' : '❌ Error'}
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                        Found {aiSearchResults.length} products
+                                    </span>
+                                    <Button variant="ghost" size="sm" onClick={clearAiSearch} className="h-6 px-2 text-xs">
+                                        Clear
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                         <Select
                             value={filters.category_id?.toString() || 'all'}
@@ -276,13 +355,13 @@ export function ProductsPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? (
+                    {isLoading || isAiSearching ? (
                         <div className="flex h-32 items-center justify-center">
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                         </div>
-                    ) : products.length === 0 ? (
+                    ) : (aiSearchResults ? aiSearchResults : products).length === 0 ? (
                         <div className="py-8 text-center text-muted-foreground">
-                            No products found
+                            {aiSearchResults ? 'No products match your search' : 'No products found'}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -300,7 +379,7 @@ export function ProductsPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="space-y-4">
-                                    {products.map((product) => (
+                                    {(aiSearchResults ?? products).map((product) => (
                                         <tr
                                             key={product.id}
                                             className="group bg-card hover:bg-accent/50 transition-all duration-300 border border-border hover:border-primary/20 shadow-sm hover:shadow-md rounded-xl"

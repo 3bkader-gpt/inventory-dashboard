@@ -33,8 +33,11 @@ from app.core.cache import cache
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown events."""
-    # Connect Redis
-    await cache.connect()
+    # Skip Redis in test mode
+    is_testing = os.environ.get("TESTING") == "1"
+    
+    if not is_testing:
+        await cache.connect()
 
     # Startup: Create tables and seed data
     # Ensure data directory exists for SQLite
@@ -43,15 +46,17 @@ async def lifespan(app: FastAPI):
     
     await init_db()
     
-    # Seed initial data
-    async with async_session_maker() as session:
-        await seed_initial_data(session)
-        await seed_sales_history(session)
+    # Seed initial data (skip in tests for speed)
+    if not is_testing:
+        async with async_session_maker() as session:
+            await seed_initial_data(session)
+            await seed_sales_history(session)
     
     yield
     
     # Shutdown: cleanup if needed
-    await cache.disconnect()
+    if not is_testing:
+        await cache.disconnect()
 
 
 app = FastAPI(

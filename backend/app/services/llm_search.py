@@ -48,10 +48,19 @@ Respond with ONLY the JSON object, no markdown, no explanation."""
     def __init__(self):
         self.ai_available = False
         self.client = None
-        self._init_ai()
+        self._initialized = False
     
     def _init_ai(self):
-        """Initialize Gemini AI if API key is available."""
+        """Initialize Gemini AI if API key is available (lazy)."""
+        if self._initialized:
+            return
+        self._initialized = True
+        
+        # Skip in test mode
+        import os
+        if os.environ.get("TESTING") == "1":
+            return
+        
         if not settings.gemini_api_key:
             print("⚠️ GEMINI_API_KEY not set, using regex fallback only")
             return
@@ -66,6 +75,9 @@ Respond with ONLY the JSON object, no markdown, no explanation."""
     
     async def parse(self, query: str) -> ParsedQuery:
         """Parse natural language query into structured filters."""
+        # Lazy initialization
+        self._init_ai()
+        
         result = ParsedQuery(raw_query=query)
         
         # Try AI first

@@ -1,33 +1,34 @@
 """Pytest configuration and fixtures for API testing."""
-import asyncio
+import os
 from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 
-from app.main import app
-from app.database import async_session_maker, init_db
+# Set test environment BEFORE importing app
+os.environ["TESTING"] = "1"
+
+from app.database import init_db
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create event loop for async tests."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest_asyncio.fixture(scope="session")
-async def setup_database():
-    """Initialize database once per session."""
-    await init_db()
+@pytest.fixture(scope="session", autouse=True)
+def set_test_env():
+    """Set testing environment."""
+    os.environ["TESTING"] = "1"
     yield
+    os.environ.pop("TESTING", None)
 
 
 @pytest_asyncio.fixture
-async def client(setup_database) -> AsyncGenerator[AsyncClient, None]:
+async def client() -> AsyncGenerator[AsyncClient, None]:
     """Create async HTTP client for API testing."""
+    # Import app here to ensure TESTING env is set
+    from app.main import app
+    
+    # Initialize database
+    await init_db()
+    
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
@@ -51,3 +52,8 @@ async def auth_client(client: AsyncClient) -> AsyncGenerator[AsyncClient, None]:
         client.headers["Authorization"] = f"Bearer {access_token}"
     
     yield client
+
+
+def pytest_configure(config):
+    """Configure pytest to exit cleanly."""
+    os.environ["TESTING"] = "1"

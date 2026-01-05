@@ -1,87 +1,138 @@
-# 🚀 Inventory Dashboard
+# 🚀 Inventory Management Dashboard
 
-A production-ready, full-stack **SaaS Inventory Management Dashboard** with a futuristic "Orbital Command Center" UI design.
+A **commercial-grade** full-stack inventory management system built with FastAPI, React, and AI-powered features.
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?logo=fastapi)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
+![Python](https://img.shields.io/badge/Python-3.12+-blue?logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi)
+![React](https://img.shields.io/badge/React-18+-61DAFB?logo=react)
+![Redis](https://img.shields.io/badge/Redis-Cached-DC382D?logo=redis)
+![Gemini AI](https://img.shields.io/badge/Gemini_AI-Powered-8E75B2?logo=google)
+![Pytest](https://img.shields.io/badge/Tests-11_Passing-green?logo=pytest)
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-| Feature | Description |
-|---------|-------------|
-| 📦 **Product Management** | Full CRUD with search, pagination, filtering, CSV import/export |
-| 📊 **Dashboard Analytics** | Real-time stats, animated charts, low-stock alerts |
-| 👥 **User Management** | Role-based access (Admin/Staff), JWT authentication |
-| 🏷️ **Category System** | Organize products with categories |
-| 🎨 **Orbital UI** | Glassmorphism, dark theme, Framer Motion animations |
-| 🐳 **Docker Ready** | One-command deployment with PostgreSQL |
+### Core Functionality
+- 📦 **Product Management** - CRUD operations with categories, SKUs, and stock tracking
+- 👥 **User Management** - Role-based access (Admin/Staff) with JWT authentication
+- 📊 **Analytics Dashboard** - Real-time stats, charts, and KPIs
+- 📁 **CSV Import/Export** - Bulk product operations
+
+### 🧠 AI Capabilities
+- **Natural Language Search** - Ask questions like *"Show me cheap electronics"* or *"low stock items under $50"*
+- **Smart Reorder Predictions** - AI calculates days until stockout and suggests reorder quantities
+- **Powered by Gemini 2.0 Flash** with intelligent regex fallback
+
+### 🛡️ Security & Performance
+- **Rate Limiting** - 100 req/min global, 10 req/min for AI endpoints
+- **Redis Caching** - Dashboard stats cached with 60s TTL
+- **JWT Authentication** - Secure access/refresh token flow
+- **Automated Tests** - 11 Pytest tests covering all critical paths
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **React 18** + TypeScript
-- **Tailwind CSS** + Shadcn/UI
-- **Framer Motion** (animations)
-- **Recharts** (data visualization)
-- **Zustand** (state management)
-
-### Backend
-- **FastAPI** (Python 3.11+)
-- **SQLAlchemy 2.0** (async ORM)
-- **PostgreSQL** + asyncpg
-- **JWT Authentication** (python-jose)
-- **bcrypt** password hashing
+| Layer | Technology |
+|-------|------------|
+| **Backend** | FastAPI, SQLAlchemy, Pydantic |
+| **Frontend** | React 18, Vite, TailwindCSS, Zustand |
+| **Database** | PostgreSQL (prod) / SQLite (dev) |
+| **Cache** | Redis (Upstash for serverless) |
+| **AI** | Google Gemini 2.0 Flash |
+| **Testing** | Pytest, HTTPX |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Local Development)
 
-### Option 1: Single-Process Mode (Development)
+### Prerequisites
+- Python 3.12+
+- Node.js 18+
+- Docker (for Redis/PostgreSQL)
+
+### 1. Clone & Install
 
 ```bash
-# Clone the repo
 git clone https://github.com/YOUR_USERNAME/inventory-dashboard.git
 cd inventory-dashboard
 
-# Install backend dependencies
-pip install -e ./backend
+# Backend
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-# Build frontend
-cd frontend && npm install && npm run build && cd ..
-
-# Run the app
-python run_app.py
+# Frontend
+cd ../frontend
+npm install
 ```
 
-Open **http://localhost:8000** (after starting the server locally)
+### 2. Environment Setup
 
-### Option 2: Docker Compose (Production)
+Create `backend/.env`:
+```env
+DATABASE_URL=sqlite+aiosqlite:///./data/inventory.db
+JWT_SECRET=your-super-secret-key
+REDIS_URL=redis://localhost:6379/0
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+### 3. Run Services
 
 ```bash
-docker-compose up -d
+# Start Redis (Docker)
+docker run -d -p 6379:6379 redis:alpine
+
+# Backend (new terminal)
+cd backend
+uvicorn app.main:app --reload
+
+# Frontend (new terminal)
+cd frontend
+npm run dev
 ```
 
-Services (available after starting with `docker-compose up`):
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **PostgreSQL**: localhost:5432
+### 4. Access
+- **Frontend**: http://localhost:5173
+- **API Docs**: http://localhost:8000/docs
+- **Login**: `admin@example.com` / `admin123`
 
 ---
 
-## 🔐 Default Credentials
+## 🧪 Running Tests
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `admin@example.com` | `admin123` |
+```bash
+cd backend
+python -m pytest tests/ -v
+```
 
-⚠️ **Change these in production!**
+Expected output: `11 passed`
+
+---
+
+## 🌐 Deployment (Render + Upstash)
+
+### Step 1: Create Upstash Redis
+1. Go to [upstash.com](https://upstash.com) → Create Redis Database
+2. Copy the **REST URL** (format: `rediss://default:xxx@xxx.upstash.io:6379`)
+
+### Step 2: Deploy to Render
+1. Push code to GitHub
+2. Create **Web Service** on Render
+3. Set environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | `postgresql+asyncpg://...` (Render PostgreSQL) |
+| `REDIS_URL` | `rediss://default:xxx@xxx.upstash.io:6379` |
+| `JWT_SECRET` | (generate a secure random string) |
+| `GEMINI_API_KEY` | (from Google AI Studio) |
+
+### Step 3: Build Commands
+- **Build**: `pip install -r requirements.txt && cd frontend && npm install && npm run build`
+- **Start**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
 ---
 
@@ -89,84 +140,30 @@ Services (available after starting with `docker-compose up`):
 
 ```
 inventory-dashboard/
-├── backend/                 # FastAPI Backend
+├── backend/
 │   ├── app/
-│   │   ├── main.py         # App entry + static serving
-│   │   ├── config.py       # Settings (pydantic)
-│   │   ├── database.py     # SQLAlchemy async setup
-│   │   ├── models/         # ORM models
-│   │   ├── schemas/        # Pydantic DTOs
-│   │   ├── routers/        # API endpoints
-│   │   ├── core/           # Auth, security
-│   │   └── services/       # Business logic
-│   ├── Dockerfile
-│   └── pyproject.toml
-│
-├── frontend/                # React Frontend
+│   │   ├── core/          # Auth, cache, dependencies
+│   │   ├── models/        # SQLAlchemy models
+│   │   ├── routers/       # API endpoints
+│   │   ├── schemas/       # Pydantic schemas
+│   │   └── services/      # Business logic, AI
+│   └── tests/             # Pytest tests
+├── frontend/
 │   ├── src/
-│   │   ├── pages/          # Route components
-│   │   ├── components/     # UI components
-│   │   ├── stores/         # Zustand stores
-│   │   ├── api/            # Axios clients
-│   │   └── types/          # TypeScript interfaces
-│   ├── Dockerfile
-│   └── package.json
-│
-├── docker-compose.yml       # Multi-service orchestration
-├── run_app.py              # Single-process runner
-└── verify_deployment_readiness.py  # Pre-deploy checks
-```
-
----
-
-## 🔌 API Endpoints
-
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/api/auth/login` | Public | Login |
-| GET | `/api/auth/me` | Auth | Current user |
-| GET | `/api/products` | Auth | List products |
-| POST | `/api/products` | Admin | Create product |
-| PATCH | `/api/products/{id}/quantity` | Auth | Update stock |
-| GET | `/api/dashboard/stats` | Auth | Dashboard stats |
-| GET | `/api/categories` | Auth | List categories |
-| GET | `/api/users` | Admin | List users |
-
-**API Documentation** (available when running locally):
-- Swagger UI: `http://localhost:8000/docs` (after starting the backend server)
-- ReDoc: `http://localhost:8000/redoc` (after starting the backend server)
-
----
-
-## ⚙️ Environment Variables
-
-Create `backend/.env`:
-
-```env
-DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/inventory_db
-JWT_SECRET=your-secret-key-here
-FIRST_ADMIN_EMAIL=admin@example.com
-FIRST_ADMIN_PASSWORD=secure-password
-```
-
----
-
-## ✅ Pre-Deployment Check
-
-Run the verification script before deploying:
-
-```bash
-python verify_deployment_readiness.py
+│   │   ├── components/    # React components
+│   │   ├── pages/         # Route pages
+│   │   ├── stores/        # Zustand state
+│   │   └── api/           # API client
+│   └── dist/              # Production build
+└── docker-compose.yml
 ```
 
 ---
 
 ## 📄 License
 
-MIT License - feel free to use for personal or commercial projects.
+MIT License - Feel free to use for commercial projects.
 
 ---
 
-## 👨‍💻 Author
-
-**Mohamed Omar**
+**Built with ❤️ using FastAPI, React, and Gemini AI**

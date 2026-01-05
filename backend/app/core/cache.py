@@ -11,8 +11,14 @@ class CacheService:
 
     async def connect(self):
         """Initialize Redis connection."""
-        self.redis = redis.from_url(settings.redis_url, encoding="utf-8", decode_responses=True)
         try:
+            self.redis = redis.from_url(
+                settings.redis_url,
+                encoding="utf-8",
+                decode_responses=True,
+                socket_timeout=2.0,  # 2 second timeout
+                socket_connect_timeout=2.0,
+            )
             await self.redis.ping()
             print("✅ Redis Connected")
         except Exception as e:

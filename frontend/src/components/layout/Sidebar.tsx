@@ -6,13 +6,15 @@ import {
     Users,
     ChevronLeft,
     Box,
-    Hexagon
+    Hexagon,
+    Menu
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navItems = [
     { to: '/', label: 'Overview', icon: LayoutDashboard },
@@ -30,36 +32,26 @@ export function Sidebar() {
         (item) => !item.adminOnly || isAdmin
     );
 
-    return (
-        <motion.aside
-            initial={false}
-            animate={{ width: sidebarOpen ? 256 : 80 }}
-            className={cn(
-                'fixed left-4 top-4 bottom-4 z-40 rounded-2xl glass-panel border border-white/10 flex flex-col overflow-hidden transition-all duration-300',
-            )}
-        >
+    const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
+        <div className="flex flex-col h-full">
             {/* Logo Area */}
-            <div className="flex h-20 items-center justify-between px-5 mb-2 relative">
-                {sidebarOpen ? (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex items-center gap-2"
-                    >
+            <div className={cn("flex items-center justify-between px-5 mb-6", mobile ? "h-16" : "h-20")}>
+                {(sidebarOpen || mobile) ? (
+                    <div className="flex items-center gap-2">
                         <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/40 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                             <Hexagon className="h-5 w-5 text-primary" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                             ORBITAL
                         </span>
-                    </motion.div>
+                    </div>
                 ) : (
                     <div className="mx-auto h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/40 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                         <Hexagon className="h-6 w-6 text-primary" />
                     </div>
                 )}
 
-                {sidebarOpen && (
+                {sidebarOpen && !mobile && (
                     <Button
                         variant="ghost"
                         size="icon"
@@ -83,7 +75,7 @@ export function Sidebar() {
                                 isActive
                                     ? 'text-white'
                                     : 'text-muted-foreground hover:text-white hover:bg-white/5',
-                                !sidebarOpen && 'justify-center px-2'
+                                (!sidebarOpen && !mobile) && 'justify-center px-2'
                             )
                         }
                     >
@@ -108,17 +100,13 @@ export function Sidebar() {
                                     )}
                                 />
 
-                                {sidebarOpen && (
-                                    <motion.span
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="z-10 font-medium tracking-wide text-sm"
-                                    >
+                                {(sidebarOpen || mobile) && (
+                                    <span className="z-10 font-medium tracking-wide text-sm">
                                         {item.label}
-                                    </motion.span>
+                                    </span>
                                 )}
 
-                                {!sidebarOpen && isActive && (
+                                {(!sidebarOpen && !mobile) && isActive && (
                                     <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-primary rounded-r-full shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
                                 )}
                             </>
@@ -131,12 +119,12 @@ export function Sidebar() {
             <div className="p-4 mt-auto">
                 <div className={cn(
                     "rounded-xl bg-white/5 border border-white/5 p-3 flex items-center gap-3 transition-all hover:bg-white/10 hover:border-white/10",
-                    !sidebarOpen && "justify-center p-2"
+                    (!sidebarOpen && !mobile) && "justify-center p-2"
                 )}>
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
                         {user?.full_name?.charAt(0) || 'U'}
                     </div>
-                    {sidebarOpen && (
+                    {(sidebarOpen || mobile) && (
                         <div className="flex-1 overflow-hidden">
                             <p className="truncate text-sm font-medium text-white">{user?.full_name}</p>
                             <p className="truncate text-xs text-muted-foreground capitalize">{user?.role}</p>
@@ -145,7 +133,7 @@ export function Sidebar() {
                 </div>
             </div>
 
-            {!sidebarOpen && (
+            {(!sidebarOpen && !mobile) && (
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
                     <Button
                         variant="ghost"
@@ -157,6 +145,35 @@ export function Sidebar() {
                     </Button>
                 </div>
             )}
-        </motion.aside>
+        </div>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <motion.aside
+                initial={false}
+                animate={{ width: sidebarOpen ? 256 : 80 }}
+                className={cn(
+                    'hidden lg:flex fixed left-4 top-4 bottom-4 z-40 rounded-2xl glass-panel border border-white/10 flex-col overflow-hidden transition-all duration-300',
+                )}
+            >
+                <SidebarContent />
+            </motion.aside>
+
+            {/* Mobile Sidebar (Sheet) */}
+            <div className="lg:hidden fixed top-4 left-4 z-50">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon" className="glass-panel border-primary/20">
+                            <Menu className="h-5 w-5" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-[80vw] sm:w-[350px] p-0 border-r-white/10 bg-black/90 backdrop-blur-xl">
+                        <SidebarContent mobile />
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </>
     );
 }

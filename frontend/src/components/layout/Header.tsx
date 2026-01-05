@@ -16,8 +16,12 @@ export function Header() {
 
     return (
         <header
-            className="fixed right-6 top-6 z-30 flex h-16 items-center justify-between rounded-xl glass-panel border border-white/10 px-6 backdrop-blur transition-all duration-300"
-            style={{ left: sidebarOpen ? '18rem' : '7rem' }}
+            className={
+                "fixed right-6 top-6 z-30 flex h-16 items-center justify-between rounded-xl glass-panel border border-white/10 px-6 backdrop-blur transition-all duration-300 left-4 lg:left-auto"
+            }
+            style={{
+                left: window.innerWidth >= 1024 ? (sidebarOpen ? '18rem' : '7rem') : '1rem'
+            }}
         >
             <div className="flex items-center gap-4">
                 <h1 className="text-lg font-semibold">Inventory Dashboard</h1>

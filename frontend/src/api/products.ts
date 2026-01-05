@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import apiClient from './client';
 import type {
     Product,
@@ -41,6 +42,7 @@ export const productsApi = {
      */
     async create(data: ProductCreateInput): Promise<Product> {
         const response = await apiClient.post<Product>('/products', data);
+        toast.success('Product created successfully');
         return response.data;
     },
 
@@ -49,6 +51,7 @@ export const productsApi = {
      */
     async update(id: number, data: ProductUpdateInput): Promise<Product> {
         const response = await apiClient.put<Product>(`/products/${id}`, data);
+        toast.success('Product updated successfully');
         return response.data;
     },
 
@@ -57,6 +60,7 @@ export const productsApi = {
      */
     async updateQuantity(id: number, quantity: number): Promise<Product> {
         const response = await apiClient.patch<Product>(`/products/${id}/quantity`, { quantity });
+        toast.success('Stock quantity updated');
         return response.data;
     },
 
@@ -65,6 +69,7 @@ export const productsApi = {
      */
     async delete(id: number): Promise<void> {
         await apiClient.delete(`/products/${id}`);
+        toast.success('Product deleted');
     },
 
     /**
@@ -87,6 +92,7 @@ export const productsApi = {
         const response = await apiClient.post('/products/import/csv', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
+        toast.success(`Import complete: ${response.data.created} created, ${response.data.updated} updated`);
         return response.data;
     },
 };

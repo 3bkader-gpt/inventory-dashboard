@@ -8,6 +8,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { ProductsPage } from '@/pages/ProductsPage';
 import { CategoriesPage } from '@/pages/CategoriesPage';
 import { UsersPage } from '@/pages/UsersPage';
+import { Toaster } from '@/components/ui/sonner';
 
 function App() {
     const { checkAuth, isAuthenticated, user } = useAuthStore();
@@ -32,40 +33,43 @@ function App() {
     };
 
     return (
-        <Routes>
-            {/* Public route */}
-            <Route
-                path="/login"
-                element={
-                    isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />
-                }
-            />
-
-            {/* Protected routes */}
-            <Route element={<ProtectedLayout />}>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/products" element={<ProductsPage />} />
+        <>
+            <Routes>
+                {/* Public route */}
                 <Route
-                    path="/categories"
+                    path="/login"
                     element={
-                        <AdminRoute>
-                            <CategoriesPage />
-                        </AdminRoute>
+                        isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />
                     }
                 />
-                <Route
-                    path="/users"
-                    element={
-                        <AdminRoute>
-                            <UsersPage />
-                        </AdminRoute>
-                    }
-                />
-            </Route>
 
-            {/* Catch all */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+                {/* Protected routes */}
+                <Route element={<ProtectedLayout />}>
+                    <Route path="/" element={<DashboardPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                    <Route
+                        path="/categories"
+                        element={
+                            <AdminRoute>
+                                <CategoriesPage />
+                            </AdminRoute>
+                        }
+                    />
+                    <Route
+                        path="/users"
+                        element={
+                            <AdminRoute>
+                                <UsersPage />
+                            </AdminRoute>
+                        }
+                    />
+                </Route>
+
+                {/* Catch all */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <Toaster />
+        </>
     );
 }
 

@@ -23,6 +23,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { dashboardApi } from '@/api/dashboard';
 import { useAuthStore } from '@/stores/authStore';
 import { formatCurrency } from '@/lib/utils';
@@ -109,10 +110,41 @@ export function DashboardPage() {
 
     if (isLoading) {
         return (
-            <div className="flex h-[80vh] items-center justify-center">
-                <div className="relative">
-                    <div className="h-24 w-24 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-                    <div className="absolute top-1/2 left-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-primary/20 blur-xl"></div>
+            <div className="space-y-8">
+                {/* Header Skeleton */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <Skeleton className="h-10 w-48 mb-2" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                </div>
+
+                {/* Bento Grid Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="glass-panel p-6 space-y-4">
+                            <div className="flex justify-between items-center">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-4 w-4 rounded-full" />
+                            </div>
+                            <Skeleton className="h-10 w-20" />
+                            <Skeleton className="h-3 w-32" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Charts Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {[...Array(2)].map((_, i) => (
+                        <div key={i} className="h-[350px] glass-panel p-6">
+                            <div className="mb-6">
+                                <Skeleton className="h-6 w-48" />
+                            </div>
+                            <div className="h-[250px] w-full flex items-end gap-2">
+                                <Skeleton className="h-full w-full rounded-md" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );

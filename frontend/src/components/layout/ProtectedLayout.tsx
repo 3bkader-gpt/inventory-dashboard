@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { SearchCommand } from './SearchCommand';
+import { SmartSearchCommand } from './SmartSearchCommand';
 import { cn } from '@/lib/utils';
 
 export function ProtectedLayout() {
@@ -28,7 +28,7 @@ export function ProtectedLayout() {
         <div className="min-h-screen">
             <Sidebar />
             <Header />
-            <SearchCommand />
+            <SmartSearchCommand />
             <main
                 className={cn(
                     'min-h-screen pt-24 transition-all duration-300 px-4 md:px-6',

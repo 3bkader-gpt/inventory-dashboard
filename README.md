@@ -1,12 +1,11 @@
 # 🚀 Inventory Management Dashboard
 
-A **commercial-grade** full-stack inventory management system built with FastAPI, React, and AI-powered features.
+A **commercial-grade** full-stack inventory management system built with FastAPI and React.
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi)
 ![React](https://img.shields.io/badge/React-18+-61DAFB?logo=react)
 ![Redis](https://img.shields.io/badge/Redis-Cached-DC382D?logo=redis)
-![Gemini AI](https://img.shields.io/badge/Gemini_AI-Powered-8E75B2?logo=google)
 ![Pytest](https://img.shields.io/badge/Tests-11_Passing-green?logo=pytest)
 
 ---
@@ -19,10 +18,10 @@ A **commercial-grade** full-stack inventory management system built with FastAPI
 - 📊 **Analytics Dashboard** - Real-time stats, charts, and KPIs
 - 📁 **CSV Import/Export** - Bulk product operations
 
-### 🧠 AI Capabilities
+### 🧠 Advanced Features
 - **Natural Language Search** - Ask questions like *"Show me cheap electronics"* or *"low stock items under $50"*
-- **Smart Reorder Predictions** - AI calculates days until stockout and suggests reorder quantities
-- **Powered by Gemini 2.0 Flash** with intelligent regex fallback
+- **Smart Reorder Predictions** - Calculates days until stockout and suggests reorder quantities
+- **Intelligent regex fallback** for reliable search results
 
 ### 🛡️ Security & Performance
 - **Rate Limiting** - 100 req/min global, 10 req/min for AI endpoints
@@ -40,7 +39,7 @@ A **commercial-grade** full-stack inventory management system built with FastAPI
 | **Frontend** | React 18, Vite, TailwindCSS, Zustand |
 | **Database** | PostgreSQL (prod) / SQLite (dev) |
 | **Cache** | Redis (Upstash for serverless) |
-| **AI** | Google Gemini 2.0 Flash |
+| **Search** | Natural language processing |
 | **Testing** | Pytest, HTTPX |
 
 ---
@@ -166,4 +165,10 @@ MIT License - Feel free to use for commercial projects.
 
 ---
 
-**Built with ❤️ using FastAPI, React, and Gemini AI**
+---
+
+## 👨‍💻 Author
+
+**Mohamed Omar**
+
+Built with ❤️ using FastAPI and React

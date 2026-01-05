@@ -167,4 +167,4 @@ MIT License - feel free to use for personal or commercial projects.
 
 ## 👨‍💻 Author
 
-Built with ❤️ using Claude AI assistance.
+**Mohamed Omar**

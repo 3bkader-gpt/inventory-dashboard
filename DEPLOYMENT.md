@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - [ ] GitHub repository with latest code pushed
-- [ ] API key for natural language search (optional)
+- [ ] Google Cloud account for Gemini API key
 
 ---
 
@@ -52,7 +52,7 @@ Add these in Render Dashboard → **Environment**:
 | `DATABASE_URL` | `postgresql+asyncpg://user:pass@host/db` | From Render PostgreSQL (convert `postgres://` to `postgresql+asyncpg://`) |
 | `REDIS_URL` | `rediss://default:xxx@xxx.upstash.io:6379` | From Upstash |
 | `JWT_SECRET` | `your-super-secret-random-string` | Generate with `openssl rand -hex 32` |
-| `GEMINI_API_KEY` | `AIzaSy...` | Optional - for natural language search feature |
+| `GEMINI_API_KEY` | `AIzaSy...` | From [Google AI Studio](https://aistudio.google.com/apikey) |
 | `FIRST_ADMIN_EMAIL` | `admin@yourcompany.com` | Optional |
 | `FIRST_ADMIN_PASSWORD` | `secure-password` | Optional |
 
@@ -71,7 +71,7 @@ Add these in Render Dashboard → **Environment**:
 - [ ] API health check: `GET /api/health` returns `{"status": "healthy"}`
 - [ ] Login works with admin credentials
 - [ ] Dashboard loads with stats
-- [ ] Smart Search (`Ctrl+K`) returns parsed results
+- [ ] Smart Search (`Ctrl+K`) returns AI-parsed results
 - [ ] Redis shows `✅ Redis Connected` in logs
 
 ---
@@ -86,9 +86,9 @@ Add these in Render Dashboard → **Environment**:
 - Convert `postgres://` to `postgresql+asyncpg://` in URL
 - Ensure Internal URL is used (not External)
 
-### Natural Language Search Not Working
-- Check `GEMINI_API_KEY` is valid (if configured)
-- Verify API quota limits
+### Gemini AI Not Working
+- Check `GEMINI_API_KEY` is valid
+- Verify quota at Google AI Studio
 
 ---
 

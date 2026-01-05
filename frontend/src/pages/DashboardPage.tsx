@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { dashboardApi } from '@/api/dashboard';
 import { useAuthStore } from '@/stores/authStore';
 import { formatCurrency } from '@/lib/utils';
+import { AIReorderWidget } from '@/components/dashboard/AIReorderWidget';
 import type { CategoryValue, DashboardStats, LowStockItem } from '@/types';
 
 // Neon Palette for Charts
@@ -241,7 +242,12 @@ export function DashboardPage() {
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* AI Reorder Widget */}
+                <motion.div variants={itemVariants} className="h-full">
+                    <AIReorderWidget />
+                </motion.div>
+
                 {/* Low Stock Chart */}
                 <motion.div variants={itemVariants} className="h-full">
                     <Card className="h-full border-white/5 bg-black/40">

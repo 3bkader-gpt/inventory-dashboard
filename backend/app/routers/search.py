@@ -1,10 +1,11 @@
 """Smart search router with natural language query support."""
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
 from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 
 from app.core.dependencies import CurrentUser, DbSession
+from app.core.limiter import limiter, AI_SEARCH_LIMIT
 from app.models.product import Product
 from app.models.category import Category
 from app.services.llm_search import query_parser, ParsedQuery
@@ -28,8 +29,10 @@ router = APIRouter(prefix="/api/search", tags=["Search"])
 
 
 @router.post("/smart", response_model=SmartSearchResponse)
+@limiter.limit(AI_SEARCH_LIMIT)
 async def smart_search(
-    request: SmartSearchRequest,
+    request: Request,  # Required by limiter
+    body: SmartSearchRequest,
     current_user: CurrentUser,
     db: DbSession,
 ) -> SmartSearchResponse:
@@ -43,7 +46,7 @@ async def smart_search(
     - "expensive furniture"
     """
     # Parse the natural language query
-    parsed = await query_parser.parse(request.query)
+    parsed = await query_parser.parse(body.query)
     
     # Build SQLAlchemy query
     query = select(Product).options(selectinload(Product.category))

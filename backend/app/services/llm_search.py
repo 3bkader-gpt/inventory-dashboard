@@ -47,7 +47,7 @@ Respond with ONLY the JSON object, no markdown, no explanation."""
 
     def __init__(self):
         self.ai_available = False
-        self.model = None
+        self.client = None
         self._init_ai()
     
     def _init_ai(self):
@@ -57,11 +57,10 @@ Respond with ONLY the JSON object, no markdown, no explanation."""
             return
         
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=settings.gemini_api_key)
-            self.model = genai.GenerativeModel("gemini-2.0-flash")
+            from google import genai
+            self.client = genai.Client(api_key=settings.gemini_api_key)
             self.ai_available = True
-            print("✅ Gemini AI initialized for smart search")
+            print("✅ Gemini AI initialized for smart search (using google-genai)")
         except Exception as e:
             print(f"⚠️ Failed to initialize Gemini: {e}")
     
@@ -83,12 +82,17 @@ Respond with ONLY the JSON object, no markdown, no explanation."""
     
     async def _parse_with_ai(self, query: str) -> Optional[ParsedQuery]:
         """Use Gemini to parse the query."""
-        if not self.model:
+        if not self.client:
             return None
         
         try:
             prompt = f"{self.SYSTEM_PROMPT}\n\nUser query: {query}"
-            response = self.model.generate_content(prompt)
+            
+            # Use the new google-genai API
+            response = self.client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+            )
             
             # Extract JSON from response
             text = response.text.strip()

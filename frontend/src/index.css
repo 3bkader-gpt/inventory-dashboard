@@ -4,67 +4,69 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 234 36% 6%;
+    /* #0B0C15 */
+    --foreground: 210 40% 98%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 234 30% 10%;
+    /* Slightly lighter than bg */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 234 36% 6%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 190 100% 50%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 186 100% 50%;
+    /* Electric Cyan #00E5FF */
+    --primary-foreground: 234 36% 6%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 265 89% 66%;
+    /* Violet #7C3AED */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 260 100% 65%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 265 89% 66%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 190 100% 50%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 186 100% 50%;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 234 36% 6%;
+    --foreground: 210 40% 98%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 234 30% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 234 36% 6%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 190 100% 50%;
-    /* Electric Cyan */
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 186 100% 50%;
+    --primary-foreground: 234 36% 6%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 265 89% 66%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 260 100% 65%;
-    /* Neon Purple */
-    --accent-foreground: 0 0% 98%;
+    --accent: 265 89% 66%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 190 100% 50%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 186 100% 50%;
   }
 }
 

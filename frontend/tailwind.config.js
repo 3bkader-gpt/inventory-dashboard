@@ -70,17 +70,28 @@ export default {
                 "pulse-glow": {
                     "0%, 100%": { opacity: "1", boxShadow: "0 0 20px theme('colors.cyan.500')" },
                     "50%": { opacity: "0.5", boxShadow: "0 0 10px theme('colors.cyan.500')" },
-                }
+                },
+                spotlight: {
+                    "0%": {
+                        opacity: 0,
+                        transform: "translate(-72%, -62%) scale(0.5)",
+                    },
+                    "100%": {
+                        opacity: 1,
+                        transform: "translate(-50%,-40%) scale(1)",
+                    },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
                 "float": "float 5s ease-in-out infinite",
                 "pulse-glow": "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                spotlight: "spotlight 2s ease .75s 1 forwards",
             },
             backgroundImage: {
-                'orbital-gradient': 'radial-gradient(circle at center, #1a1a2e 0%, #0a0a0a 100%)',
-                'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)',
+                'orbital-gradient': 'radial-gradient(circle at center, #0B0C15 0%, #000000 100%)',
+                'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%)',
             }
         },
     },

@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_, select
 
 from app.core.dependencies import AdminUser, CurrentUser, DbSession
+from app.core.cache import cache
 from app.models.product import Product
 from app.models.user import UserRole
 from app.schemas.product import (
@@ -95,6 +96,9 @@ async def create_product(
     await db.flush()
     await db.refresh(product)
     
+    # Invalidate dashboard cache
+    await cache.delete_pattern("dashboard_stats_*")
+    
     return ProductResponse.model_validate(product)
 
 
@@ -152,6 +156,9 @@ async def update_product(
     await db.flush()
     await db.refresh(product)
     
+    # Invalidate dashboard cache
+    await cache.delete_pattern("dashboard_stats_*")
+    
     return ProductResponse.model_validate(product)
 
 
@@ -176,6 +183,9 @@ async def update_product_quantity(
     await db.flush()
     await db.refresh(product)
     
+    # Invalidate dashboard cache
+    await cache.delete_pattern("dashboard_stats_*")
+    
     return ProductResponse.model_validate(product)
 
 
@@ -196,6 +206,9 @@ async def delete_product(
         )
     
     await db.delete(product)
+    
+    # Invalidate dashboard cache
+    await cache.delete_pattern("dashboard_stats_*")
 
 
 @router.get("/export/csv")
@@ -291,6 +304,9 @@ async def import_products_csv(
             errors.append(f"Row {row_num}: {str(e)}")
     
     await db.flush()
+    
+    # Invalidate dashboard cache
+    await cache.delete_pattern("dashboard_stats_*")
     
     return {
         "created": created,

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     
     # Database (PostgreSQL for production, SQLite for local dev)
     database_url: str = "postgresql+asyncpg://inventory_user:inventory_secret_password@localhost:5432/inventory_db"
+    redis_url: str = "redis://localhost:6379/0"
     
     # JWT Configuration
     jwt_secret: str = "change-me-in-production"

@@ -22,9 +22,14 @@ from app.services import seed_initial_data
 FRONTEND_DIR = Path(__file__).parent.parent.parent / "frontend" / "dist"
 
 
+from app.core.cache import cache
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown events."""
+    # Connect Redis
+    await cache.connect()
+
     # Startup: Create tables and seed data
     # Ensure data directory exists for SQLite
     data_dir = Path("./data")
@@ -39,7 +44,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown: cleanup if needed
-    pass
+    await cache.disconnect()
 
 
 app = FastAPI(

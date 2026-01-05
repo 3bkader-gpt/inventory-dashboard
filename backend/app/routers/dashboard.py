@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from sqlalchemy import func, select
 
 from app.core.dependencies import CurrentUser, DbSession
+from app.core.cache import cache
 from app.models.category import Category
 from app.models.product import Product
 from app.models.user import UserRole
@@ -18,6 +19,12 @@ async def get_dashboard_stats(
     db: DbSession,
 ) -> DashboardStats:
     """Get aggregate dashboard statistics."""
+    # Check cache first
+    cache_key = f"dashboard_stats_{current_user.role}"
+    cached_data = await cache.get(cache_key)
+    if cached_data:
+        return DashboardStats(**cached_data)
+
     # Total products
     products_result = await db.execute(select(func.count(Product.id)))
     total_products = products_result.scalar() or 0
@@ -49,13 +56,19 @@ async def get_dashboard_stats(
     if current_user.role == UserRole.STAFF:
         total_value = Decimal(0)
     
-    return DashboardStats(
+    stats = DashboardStats(
         total_products=total_products,
         total_categories=total_categories,
         low_stock_count=low_stock_count,
         total_inventory_value=total_value,
         total_quantity=total_quantity,
     )
+
+    # Cache the result (convert Decimal to float/str for JSON)
+    # Pydantic's .model_dump(mode='json') handles Decimal serialization
+    await cache.set(cache_key, stats.model_dump(mode='json'), expire=60)
+    
+    return stats
 
 
 @router.get("/low-stock", response_model=list[LowStockItem])

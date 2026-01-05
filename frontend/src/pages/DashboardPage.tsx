@@ -5,7 +5,6 @@ import {
     AlertTriangle,
     DollarSign,
     Boxes,
-    TrendingUp,
     Activity
 } from 'lucide-react';
 import {
@@ -23,6 +22,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PremiumCard } from '@/components/ui/PremiumCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dashboardApi } from '@/api/dashboard';
 import { useAuthStore } from '@/stores/authStore';
@@ -49,35 +49,7 @@ const itemVariants = {
     show: { y: 0, opacity: 1 }
 };
 
-// Animated Counter Component
-const AnimatedCounter = ({ value, formatter = (v: number) => v.toString() }: { value: number, formatter?: (v: number) => string }) => {
-    const [displayValue, setDisplayValue] = useState(0);
-
-    useEffect(() => {
-        let start = 0;
-        const end = value;
-        if (start === end) return;
-
-        const duration = 2000;
-        const startTime = performance.now();
-
-        const updateCounter = (currentTime: number) => {
-            const elapsedTime = currentTime - startTime;
-            if (elapsedTime < duration) {
-                const progress = elapsedTime / duration;
-                const easeOut = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
-                setDisplayValue(start + (end - start) * easeOut);
-                requestAnimationFrame(updateCounter);
-            } else {
-                setDisplayValue(end);
-            }
-        };
-
-        requestAnimationFrame(updateCounter);
-    }, [value]);
-
-    return <span>{formatter(typeof value === 'number' ? displayValue : 0)}</span>;
-};
+// Animated Counter removed (handled by PremiumCard)
 
 export function DashboardPage() {
     const { user } = useAuthStore();
@@ -177,67 +149,45 @@ export function DashboardPage() {
 
             {/* Bento Grid Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-all duration-500" />
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
-                        <Package className="h-4 w-4 text-blue-400" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-white neon-text">
-                            <AnimatedCounter value={stats?.total_products ?? 0} formatter={(v) => Math.round(v).toLocaleString()} />
-                        </div>
-                        <div className="text-xs text-blue-400/80 mt-1 flex items-center">
-                            <TrendingUp className="mr-1 h-3 w-3" /> +12% from last month
-                        </div>
-                    </CardContent>
-                </Card>
+                <motion.div variants={itemVariants}>
+                    <PremiumCard
+                        title="Total Products"
+                        value={stats?.total_products ?? 0}
+                        trend={12}
+                        icon={Package}
+                        className="border-blue-500/20"
+                    />
+                </motion.div>
 
-                <Card className="relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-purple-500/10 blur-2xl group-hover:bg-purple-500/20 transition-all duration-500" />
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Categories</CardTitle>
-                        <FolderTree className="h-4 w-4 text-purple-400" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-white">
-                            <AnimatedCounter value={stats?.total_categories ?? 0} formatter={(v) => Math.round(v).toLocaleString()} />
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">Active classifications</div>
-                    </CardContent>
-                </Card>
+                <motion.div variants={itemVariants}>
+                    <PremiumCard
+                        title="Categories"
+                        value={stats?.total_categories ?? 0}
+                        icon={FolderTree}
+                        className="border-purple-500/20"
+                    />
+                </motion.div>
 
-                <Card className="relative overflow-hidden group border-red-500/20">
-                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-500/10 blur-2xl group-hover:bg-red-500/20 transition-all duration-500" />
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-red-400">Low Stock Alerts</CardTitle>
-                        <AlertTriangle className="h-4 w-4 text-red-500 animate-pulse" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-red-500 neon-text">
-                            <AnimatedCounter value={stats?.low_stock_count ?? 0} formatter={(v) => Math.round(v).toLocaleString()} />
-                        </div>
-                        <div className="text-xs text-red-400/80 mt-1">Requires immediate attention</div>
-                    </CardContent>
-                </Card>
+                <motion.div variants={itemVariants}>
+                    <PremiumCard
+                        title="Low Stock Alerts"
+                        value={stats?.low_stock_count ?? 0}
+                        trend={-2}
+                        icon={AlertTriangle}
+                        className="border-red-500/20"
+                    />
+                </motion.div>
 
                 {isAdmin && (
-                    <Card className="relative overflow-hidden group border-green-500/20">
-                        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-green-500/10 blur-2xl group-hover:bg-green-500/20 transition-all duration-500" />
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-green-400">Inventory Value</CardTitle>
-                            <DollarSign className="h-4 w-4 text-green-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-green-400 neon-text">
-                                <AnimatedCounter
-                                    value={Number(stats?.total_inventory_value ?? 0)}
-                                    formatter={(v) => formatCurrency(v)}
-                                />
-                            </div>
-                            <div className="text-xs text-green-400/60 mt-1">Total asset valuation</div>
-                        </CardContent>
-                    </Card>
+                    <motion.div variants={itemVariants}>
+                        <PremiumCard
+                            title="Inventory Value"
+                            value={Number(stats?.total_inventory_value ?? 0)}
+                            formatter={(v) => formatCurrency(v)}
+                            icon={DollarSign}
+                            className="border-green-500/20"
+                        />
+                    </motion.div>
                 )}
             </div>
 

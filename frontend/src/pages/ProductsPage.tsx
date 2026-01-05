@@ -252,26 +252,31 @@ export function ProductsPage() {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="w-full border-separate border-spacing-y-2">
                                 <thead>
-                                    <tr className="border-b text-left text-sm text-muted-foreground">
-                                        <th className="pb-3 font-medium">SKU</th>
-                                        <th className="pb-3 font-medium">Name</th>
-                                        <th className="pb-3 font-medium">Category</th>
-                                        <th className="pb-3 font-medium text-right">Quantity</th>
-                                        {isAdmin && <th className="pb-3 font-medium text-right">Unit Price</th>}
-                                        {isAdmin && <th className="pb-3 font-medium text-right">Total Value</th>}
-                                        <th className="pb-3 font-medium">Updated</th>
-                                        <th className="pb-3 font-medium text-right">Actions</th>
+                                    <tr className="text-left text-sm text-muted-foreground">
+                                        <th className="pb-3 px-4 font-medium">SKU</th>
+                                        <th className="pb-3 px-4 font-medium">Name</th>
+                                        <th className="pb-3 px-4 font-medium">Category</th>
+                                        <th className="pb-3 px-4 font-medium text-right">Quantity</th>
+                                        {isAdmin && <th className="pb-3 px-4 font-medium text-right">Unit Price</th>}
+                                        {isAdmin && <th className="pb-3 px-4 font-medium text-right">Total Value</th>}
+                                        <th className="pb-3 px-4 font-medium">Updated</th>
+                                        <th className="pb-3 px-4 font-medium text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y">
+                                <tbody className="space-y-4">
                                     {products.map((product) => (
-                                        <tr key={product.id} className="hover:bg-muted/50">
-                                            <td className="py-3 font-mono text-sm">{product.sku}</td>
-                                            <td className="py-3">
+                                        <tr
+                                            key={product.id}
+                                            className="group bg-black/20 hover:bg-black/40 transition-all duration-300 border border-white/5 hover:border-primary/20 shadow-sm hover:shadow-lg hover:shadow-primary/5 rounded-xl"
+                                        >
+                                            <td className="py-4 px-4 font-mono text-sm rounded-l-xl border-y border-l border-white/5 group-hover:border-primary/20 transition-colors">
+                                                {product.sku}
+                                            </td>
+                                            <td className="py-4 px-4 border-y border-white/5 group-hover:border-primary/20 transition-colors">
                                                 <div>
-                                                    <div className="font-medium">{product.name}</div>
+                                                    <div className="font-medium text-white group-hover:text-primary transition-colors">{product.name}</div>
                                                     {product.description && (
                                                         <div className="text-sm text-muted-foreground line-clamp-1">
                                                             {product.description}
@@ -279,18 +284,22 @@ export function ProductsPage() {
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="py-3">
-                                                {product.category?.name || (
+                                            <td className="py-4 px-4 border-y border-white/5 group-hover:border-primary/20 transition-colors">
+                                                {product.category?.name ? (
+                                                    <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-muted-foreground border border-white/10">
+                                                        {product.category.name}
+                                                    </span>
+                                                ) : (
                                                     <span className="text-muted-foreground">—</span>
                                                 )}
                                             </td>
-                                            <td className="py-3 text-right">
+                                            <td className="py-4 px-4 text-right border-y border-white/5 group-hover:border-primary/20 transition-colors">
                                                 {quantityEdit?.id === product.id ? (
                                                     <div className="flex items-center justify-end gap-2">
                                                         <Input
                                                             type="number"
                                                             min={0}
-                                                            className="w-20 text-right"
+                                                            className="w-20 text-right h-8 bg-black/50"
                                                             value={quantityEdit.value}
                                                             onChange={(e) =>
                                                                 setQuantityEdit({
@@ -304,46 +313,47 @@ export function ProductsPage() {
                                                             }}
                                                             autoFocus
                                                         />
-                                                        <Button size="sm" onClick={handleQuantityUpdate}>
+                                                        <Button size="sm" onClick={handleQuantityUpdate} className="h-8">
                                                             Save
                                                         </Button>
                                                     </div>
                                                 ) : (
                                                     <button
                                                         className={cn(
-                                                            'rounded px-2 py-1 font-medium',
+                                                            'rounded-full px-3 py-1 text-xs font-semibold transition-all duration-300 border',
                                                             product.is_low_stock
-                                                                ? 'bg-destructive/10 text-destructive'
-                                                                : 'hover:bg-muted'
+                                                                ? 'bg-red-500/10 text-red-500 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+                                                                : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)] hover:bg-emerald-500/20'
                                                         )}
                                                         onClick={() =>
                                                             setQuantityEdit({ id: product.id, value: product.quantity })
                                                         }
                                                     >
-                                                        {product.quantity}
+                                                        {product.quantity} units
                                                     </button>
                                                 )}
                                             </td>
                                             {isAdmin && (
-                                                <td className="py-3 text-right">
+                                                <td className="py-4 px-4 text-right border-y border-white/5 group-hover:border-primary/20 transition-colors">
                                                     {formatCurrency(product.unit_price)}
                                                 </td>
                                             )}
                                             {isAdmin && (
-                                                <td className="py-3 text-right font-medium">
+                                                <td className="py-4 px-4 text-right font-medium text-white border-y border-white/5 group-hover:border-primary/20 transition-colors">
                                                     {formatCurrency(product.total_value)}
                                                 </td>
                                             )}
-                                            <td className="py-3 text-sm text-muted-foreground">
+                                            <td className="py-4 px-4 text-sm text-muted-foreground border-y border-white/5 group-hover:border-primary/20 transition-colors">
                                                 {formatDate(product.updated_at)}
                                             </td>
-                                            <td className="py-3 text-right">
+                                            <td className="py-4 px-4 text-right rounded-r-xl border-y border-r border-white/5 group-hover:border-primary/20 transition-colors">
                                                 <div className="flex justify-end gap-1">
                                                     {isAdmin && (
                                                         <>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
+                                                                className="hover:bg-primary/20 hover:text-primary"
                                                                 onClick={() => handleOpenForm(product)}
                                                             >
                                                                 <Edit className="h-4 w-4" />
@@ -351,9 +361,10 @@ export function ProductsPage() {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
+                                                                className="hover:bg-destructive/20 hover:text-destructive"
                                                                 onClick={() => handleDelete(product.id)}
                                                             >
-                                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                                                <Trash2 className="h-4 w-4" />
                                                             </Button>
                                                         </>
                                                     )}

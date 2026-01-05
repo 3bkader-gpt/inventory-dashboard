@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     # First Admin (created on startup if no users exist)
     first_admin_email: str = "admin@example.com"
     first_admin_password: str = "admin123"
+    
+    # AI / LLM Configuration
+    gemini_api_key: str | None = None
 
 
 @lru_cache

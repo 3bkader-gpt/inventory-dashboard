@@ -5,6 +5,7 @@ from app.routers.categories import router as categories_router
 from app.routers.products import router as products_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.analytics import router as analytics_router
+from app.routers.search import router as search_router
 
 __all__ = [
     "auth_router",
@@ -13,5 +14,7 @@ __all__ = [
     "products_router",
     "dashboard_router",
     "analytics_router",
+    "search_router",
 ]
+
 

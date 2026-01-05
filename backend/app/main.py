@@ -15,6 +15,7 @@ from app.routers import (
     categories_router,
     dashboard_router,
     products_router,
+    search_router,
     users_router,
 )
 from app.services import seed_initial_data, seed_sales_history
@@ -76,6 +77,7 @@ app.include_router(categories_router)
 app.include_router(products_router)
 app.include_router(dashboard_router)
 app.include_router(analytics_router)
+app.include_router(search_router)
 
 
 @app.get("/api/health")

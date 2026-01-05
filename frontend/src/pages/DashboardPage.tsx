@@ -300,6 +300,7 @@ export function DashboardPage() {
                                                     borderRadius: '12px',
                                                     color: '#fff'
                                                 }}
+                                                itemStyle={{ color: '#fff' }}
                                                 formatter={(value: number) =>
                                                     isAdmin ? formatCurrency(value) : value.toLocaleString()
                                                 }

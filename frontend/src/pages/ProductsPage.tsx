@@ -368,6 +368,7 @@ export function ProductsPage() {
                             <table className="w-full border-separate border-spacing-y-2">
                                 <thead>
                                     <tr className="text-left text-sm text-muted-foreground">
+                                        <th className="pb-3 px-4 font-medium">Image</th>
                                         <th className="pb-3 px-4 font-medium">SKU</th>
                                         <th className="pb-3 px-4 font-medium">Name</th>
                                         <th className="pb-3 px-4 font-medium">Category</th>
@@ -384,7 +385,17 @@ export function ProductsPage() {
                                             key={product.id}
                                             className="group bg-card hover:bg-accent/50 transition-all duration-300 border border-border hover:border-primary/20 shadow-sm hover:shadow-md rounded-xl"
                                         >
-                                            <td className="py-4 px-4 font-mono text-sm rounded-l-xl border-y border-l border-transparent group-hover:border-primary/10 transition-colors text-foreground">
+                                            <td className="py-2 px-4 rounded-l-xl border-y border-l border-transparent group-hover:border-primary/10 transition-colors">
+                                                <div className="h-10 w-10 rounded-lg overflow-hidden glass-panel border border-white/10">
+                                                    <img
+                                                        src={`https://picsum.photos/seed/${product.id}/200/200`}
+                                                        alt={product.name}
+                                                        className="h-full w-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4 font-mono text-sm border-y border-transparent group-hover:border-primary/10 transition-colors text-foreground">
                                                 {product.sku}
                                             </td>
                                             <td className="py-4 px-4 border-y border-transparent group-hover:border-primary/10 transition-colors">

@@ -4,7 +4,6 @@ import {
     AlertTriangle,
     DollarSign,
     Boxes,
-    Activity
 } from 'lucide-react';
 import {
     BarChart,
@@ -29,6 +28,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { formatCurrency } from '@/lib/utils';
 import { AIReorderWidget } from '@/components/dashboard/AIReorderWidget';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { DashboardHero } from '@/components/dashboard/DashboardHero';
+import { FeatureVideo } from '@/components/common/FeatureVideo';
 
 // Neon Palette for Charts
 const COLORS = ['#06b6d4', '#8b5cf6', '#f472b6', '#10b981', '#f59e0b', '#ef4444'];
@@ -121,22 +122,7 @@ export function DashboardPage() {
             animate="show"
             className="space-y-8"
         >
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                        Command Center
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Orbital Overview • {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-                </div>
-                {isAdmin && (
-                    <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-primary/20">
-                        <Activity className="h-4 w-4 text-primary animate-pulse" />
-                        <span className="text-sm font-medium text-primary">System Online</span>
-                    </div>
-                )}
-            </div>
+            <DashboardHero isAdmin={isAdmin} />
 
             {/* Bento Grid Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -184,9 +170,10 @@ export function DashboardPage() {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* AI Reorder Widget */}
-                <motion.div variants={itemVariants} className="h-full">
+                {/* AI Reorder Widget & Feature Video */}
+                <motion.div variants={itemVariants} className="h-full flex flex-col gap-6">
                     <AIReorderWidget />
+                    <FeatureVideo />
                 </motion.div>
 
                 {/* Low Stock Chart */}

@@ -58,9 +58,9 @@ It includes:
   - `Dockerfile` – builds static assets and serves them with nginx
 - `docker-compose.yml`
   - `db` – Postgres 15
-  - `redis` – Redis cache
-  - `backend` – FastAPI API service
-  - `frontend` – nginx serving the built React app on port `3000`
+  - `redis` – Redis cache (internal network only)
+  - `backend` – FastAPI API service (container port 8000, exposed as 8030)
+  - `frontend` – nginx serving React app on container port `80` (exposed as `3000`)
 
 ---
 
@@ -84,15 +84,21 @@ docker compose up -d --build
 
 This will start the following services:
 
-- **db** – PostgreSQL on internal hostname `db`
-- **redis** – Redis cache on `redis:6379`
-- **backend** – FastAPI app on container port `8000` (exposed as `8000` on host)
-- **frontend** – nginx serving React app on container port `80` (exposed as `3000` on host)
+- **db** – PostgreSQL on internal hostname `db`, exposed on host `5432`
+- **redis** – Redis cache on internal hostname `redis`
+- **backend** – FastAPI app on container port `8000` (exposed as host `8030`)
+- **frontend** – nginx serving React app on container port `80` (exposed as host `3000`)
 
 Now open the dashboard in your browser:
 
 ```text
 http://<server-ip>:3000/
+```
+
+Backend API will be reachable (for tools / testing) at:
+
+```text
+http://<server-ip>:8030/
 ```
 
 ### Default Admin Credentials (development)

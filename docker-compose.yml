@@ -36,7 +36,7 @@ services:
     build: ./backend
     container_name: inventory-api
     ports:
-      - "8000:8000"
+      - "8030:8000"  # host:container
     environment:
       - DATABASE_URL=postgresql+asyncpg://inventory_user:inventory_secret_password@db:5432/inventory_db
       - REDIS_URL=redis://redis:6379/0
